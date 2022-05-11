@@ -20,6 +20,7 @@ signals:
 
 private slots:
     void on_pushButton_ok_clicked();
+    void on_pushButton_exit_clicked();
 
 private:
     Ui::LoginWindow *ui;

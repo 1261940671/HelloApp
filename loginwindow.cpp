@@ -47,6 +47,11 @@ void LoginWindow::on_pushButton_ok_clicked()
     db->close();
 }
 
+void LoginWindow::on_pushButton_exit_clicked()
+{
+    this->close();
+}
+
 void LoginWindow::keyPressEvent(QKeyEvent *event)
 {
     if(event->key()==Qt::Key_Enter)
