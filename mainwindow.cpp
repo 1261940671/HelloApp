@@ -1,31 +1,34 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
-#include <QSqlDatabase>
-#include <QMessageBox>
-#include <QDebug>
-#include <QSqlError>
+#include "qmysqlserver.h"
+#include <QStandardItemModel>
+#include <QHeaderView>
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
-    QSqlDatabase db = QSqlDatabase::addDatabase("QMYSQL");
-    db.setHostName("127.0.0.1");
-    db.setPort(3306);
-    db.setDatabaseName("test");
-    db.setUserName("root");
-    db.setPassword("123456");
-    bool ok = db.open();
-    if(ok)
+    QMySQLServer *db = QMySQLServer::getInstance();
+    db->open();
+    db->operate("select * from sys_user;");
+
+    QStandardItemModel *model=new QStandardItemModel(this);
+    model->setColumnCount(3);
+    model->setHeaderData(0,Qt::Horizontal,"ID");
+    model->setHeaderData(1,Qt::Horizontal,"用户名");
+    model->setHeaderData(2,Qt::Horizontal,"密码");
+
+    int row=0;
+    while(db->getNext())
     {
-        QMessageBox::information(this, "info", "success");
+        model->setItem(row,0,new QStandardItem(db->getValue("id").toString()));
+        model->setItem(row,1,new QStandardItem(db->getValue("username").toString()));
+        model->setItem(row,2,new QStandardItem(db->getValue("password").toString()));
+        row++;
     }
-    else
-    {
-        QMessageBox::information(this, "info", "open failed");
-        qDebug()<<"error open database because"<<db.lastError().text();
-    }
+
+    ui->tableView->setModel(model);
 }
 
 MainWindow::~MainWindow()
@@ -33,3 +36,7 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
+void MainWindow::receiveLogin()
+{
+    this->show();
+}
